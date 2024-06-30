@@ -3,11 +3,11 @@ from werkzeug.utils import secure_filename
 import tempfile
 
 import os
-import json
+import pandas as pd
 
 from func_parse_statements import convert_pdf_to_text
 from func_extract_holdings import load_model, extract_holdings
-from func_enrich_data import json_to_df
+from func_enrich_data import json_to_dfs
 
 app = Flask(__name__)
 
@@ -19,7 +19,7 @@ def index():
     return '''
     <!doctype html>
     <title>Upload PDF</title>
-    <h1>Upload PDF</h1>
+    <h1>Portfolio Panda</h1>
     <form method=post enctype=multipart/form-data action="/upload">
       <input type=file name=pdf>
       <input type=submit value=Upload>
@@ -46,14 +46,17 @@ def upload_file():
     holdings_json = extract_holdings(model, text)
 
     # Convert JSON to Pandas DataFrame
-    df = json_to_df(holdings_json)
+    dfs = json_to_dfs(holdings_json)
 
-    # Save JSON to a file
-    # Save DataFrame to an Excel file
-    excel_filepath = os.path.join(tempfile.gettempdir(), f"{os.path.splitext(filename)[0]}.xlsx")
-    df.to_excel(excel_filepath, index=False)
+    # Create a temporary file path
+    excel_filepath = os.path.join(tempfile.gettempdir(), f"{os.path.splitext(file.filename)[0]}.xlsx")
 
-    return send_file(excel_filepath, as_attachment=True, download_name=f"{os.path.splitext(filename)[0]}.xlsx")
+    # Write DataFrames to separate sheets in the Excel file
+    with pd.ExcelWriter(excel_filepath, engine='xlsxwriter') as writer:
+        for account_number, df in dfs.items():
+            df.to_excel(writer, sheet_name=account_number, index=False)
+
+    return send_file(excel_filepath, as_attachment=True, download_name=f"{os.path.splitext(file.filename)[0]}.xlsx")
 
 if __name__ == '__main__':
     app.run(debug=True)
