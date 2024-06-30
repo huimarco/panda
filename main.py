@@ -5,8 +5,9 @@ import tempfile
 import os
 import json
 
-from func_pdf_to_text import convert_pdf_to_text
+from func_parse_statements import convert_pdf_to_text
 from func_extract_holdings import load_model, extract_holdings
+from func_enrich_data import json_to_df
 
 app = Flask(__name__)
 
@@ -44,12 +45,15 @@ def upload_file():
     # Convert text to JSON
     holdings_json = extract_holdings(model, text)
 
-    # Save JSON to a file
-    json_filepath = os.path.join(tempfile.gettempdir(), f"{os.path.splitext(filename)[0]}.json")
-    with open(json_filepath, 'w') as json_file:
-        json.dump(holdings_json, json_file)
+    # Convert JSON to Pandas DataFrame
+    df = json_to_df(holdings_json)
 
-    return send_file(json_filepath, as_attachment=True, download_name=f"{os.path.splitext(filename)[0]}.json")
+    # Save JSON to a file
+    # Save DataFrame to an Excel file
+    excel_filepath = os.path.join(tempfile.gettempdir(), f"{os.path.splitext(filename)[0]}.xlsx")
+    df.to_excel(excel_filepath, index=False)
+
+    return send_file(excel_filepath, as_attachment=True, download_name=f"{os.path.splitext(filename)[0]}.xlsx")
 
 if __name__ == '__main__':
     app.run(debug=True)
