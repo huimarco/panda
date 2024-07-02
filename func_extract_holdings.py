@@ -48,7 +48,7 @@ def load_model():
     }
 
     model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name='gemini-1.5-pro', #"gemini-1.5-flash",
     generation_config=generation_config,
     system_instruction=system_prompt
     )
