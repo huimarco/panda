@@ -7,7 +7,7 @@ import pandas as pd
 
 from func_parse_statements import convert_pdf_to_text
 from func_extract_holdings import load_model, extract_holdings
-from func_enrich_data import json_to_dfs
+from func_enrich_data import json_to_dfs, yfinance_enrich
 
 app = Flask(__name__)
 
@@ -47,6 +47,9 @@ def upload_file():
 
     # Convert JSON to Pandas DataFrame
     dfs = json_to_dfs(holdings_json)
+
+    # Add columns with yfinance
+    dfs = {account_number: yfinance_enrich(df) for account_number, df in dfs.items()}
 
     # Create a temporary file path
     excel_filepath = os.path.join(tempfile.gettempdir(), f"{os.path.splitext(file.filename)[0]}.xlsx")

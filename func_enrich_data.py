@@ -1,4 +1,5 @@
 import pandas as pd 
+import yfinance as yf
 
 def json_to_dfs(json_data):
     statement_date = json_data['statement_date']
@@ -19,3 +20,16 @@ def json_to_dfs(json_data):
         dataframes[account_number] = df
     
     return dataframes
+
+def yfinance_enrich(df):
+    # Get list of unique symbols
+    symbols = df['symbol'].unique().tolist()
+
+    # Make API call
+    prices_table = yf.download(symbols, period='1d')
+    closing_prices = prices_table['Adj Close'].iloc[0]
+
+    # Map latest price to corresponding symbol
+    df['last_close_price'] = df['symbol'].map(closing_prices)
+    
+    return df

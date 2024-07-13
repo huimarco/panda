@@ -6,7 +6,7 @@ import json
 def load_model():
     system_prompt = """
     You are a financial advisor given a string of text from brokerage statements. Please interpret it to identify individual positions in each account.
-    If you cannot identify a specific attribute, fill it with 'NA'.
+    If you cannot identify a specific attribute, fill it with 'NaN'.
 
     Example input:
     '7 of 28\nINVESTMENT REPORT \nJuly 1 – July 31, 2015\u2009\u2002\u2002\nHoldings (continued)\u2002\nDescription\nQuantity\nPrice \nPer Unit\nEnding \nMarket Value\nTotal \nCost Basis\nUnrealized \nGain/Loss\nEst. Annual \nIncome (EAI)\nEst. Yield \n(EY)\n25.00\n525.31\n$13,132.75 \n$9,350.12 \nc\n$3,782.63 \n$304.68 \n2.32%\nCommon Stocks \nAPPLE INC (AAPL) \nAMERCO COM (UHAL)\n30.00\n203.15A\n 6,094.50 \n 4,149.75 \nc\n 1,944.75 \n—\nTotal Common Stock (24% of account holdings)\n $5,517.25 \n$-1,011.12 \n$6,528.37 \n$304.68 \nAccount 111-111111 \nJohn W. Doe - Individual TOD\n*** SAMPLE STATEMENT ***\nFor informational purposes only\n$304.68 \n'
